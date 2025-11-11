@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Representative Draw</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 50, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            color: #f8f9fa;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.85;
+        }
+        .team-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .member-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            width: 120px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        /* 修改：最终选中样式 */
+        .member-card.selected {
+            background: rgba(46, 204, 113, 0.35);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+            border: 1px solid rgba(46, 204, 113, 0.6);
+        }
+        /* 新增：临时高亮样式 */
+        .member-card.temp-highlight {
+            background: rgba(200, 200, 200, 0.25);
+            transform: scale(1.03);
+        }
+        .member-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .member-status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .draw-btn {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+            letter-spacing: 1px;
+        }
+        .draw-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .draw-btn:disabled {
+            background: linear-gradient(to right, #95a5a6, #bdc3c7);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .results-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #f1c40f;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .result-round {
+            font-weight: bold;
+            font-size: 1.2rem;
+            width: 30%;
+            text-align: left;
+        }
+        .result-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1abc9c;
+            width: 70%;
+            text-align: right;
+            text-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+        }
+        .reset-btn {
+            background: transparent;
+            color: #ecf0f1;
+            border: 2px solid #ecf0f1;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .reset-btn:hover {
+            background: rgba(236, 240, 241, 0.15);
+        }
+        .counter {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            font-weight: bold;
+            color: #f1c40f;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        @media (max-width: 600px) {
+            .member-card {
+                width: 100px;
+                padding: 10px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .draw-btn {
+                padding: 14px 30px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Team Representative Draw</h1>
+        <p class="subtitle">Randomly select 3 presenters from 9 team members</p>
+        
+        <div class="team-container" id="teamContainer">
+            <!-- Team members will be generated by JavaScript -->
+        </div>
+        
+        <div class="counter">
+            Draws remaining: <span id="drawCounter">3</span>
+        </div>
+        
+        <button class="draw-btn" id="drawButton">Draw a Presenter</button>
+        
+        <div class="results-container">
+            <div class="result-title">Presentation Results</div>
+            <div class="result-item">
+                <div class="result-round">Round 1:</div>
+                <div class="result-name" id="result1">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-round">Round 2:</div>
+                <div class="result-name" id="result2">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-round">Round 3:</div>
+                <div class="result-name" id="result3">-</div>
+            </div>
+        </div>
+        
+        <button class="reset-btn" id="resetButton">Reset Draw</button>
+    </div>
+
+    <script>
+        // Initialize team members
+        const teamMembers = Array.from({length: 9}, (_, i) => `Name ${i+1}`);
+        let availableMembers = [...teamMembers];
+        let drawCount = 0;
+        
+        // DOM elements
+        const teamContainer = document.getElementById('teamContainer');
+        const drawButton = document.getElementById('drawButton');
+        const resetButton = document.getElementById('resetButton');
+        const drawCounter = document.getElementById('drawCounter');
+        
+        // Create team member cards
+        function createMemberCards() {
+            teamContainer.innerHTML = '';
+            teamMembers.forEach(member => {
+                const card = document.createElement('div');
+                card.className = 'member-card';
+                card.id = `card-${member.replace(' ', '-')}`;
+                card.innerHTML = `
+                    <div class="member-name">${member}</div>
+                    <div class="member-status">Available</div>
+                `;
+                teamContainer.appendChild(card);
+            });
+        }
+        
+        // Draw a random presenter
+        function drawPresenter() {
+            if (availableMembers.length === 0 || drawCount >= 3) return;
+            
+            // Disable button during draw animation
+            drawButton.disabled = true;
+            
+            // Animation effect
+            let shuffleCount = 0;
+            const maxShuffles = 25;
+            const shuffleInterval = setInterval(() => {
+                // 移除所有临时高亮
+                teamMembers.forEach(member => {
+                    const card = document.getElementById(`card-${member.replace(' ', '-')}`);
+                    card.classList.remove('temp-highlight');
+                });
+                
+                // 随机选择一个成员进行临时高亮
+                const randomIndex = Math.floor(Math.random() * availableMembers.length);
+                const randomMember = availableMembers[randomIndex];
+                const currentCard = document.getElementById(`card-${randomMember.replace(' ', '-')}`);
+                
+                if (currentCard) {
+                    currentCard.classList.add('temp-highlight');
+                }
+                
+                shuffleCount++;
+                
+                // 结束动画并选择最终成员
+                if (shuffleCount >= maxShuffles) {
+                    clearInterval(shuffleInterval);
+                    
+                    // 移除所有临时高亮
+                    teamMembers.forEach(member => {
+                        const card = document.getElementById(`card-${member.replace(' ', '-')}`);
+                        card.classList.remove('temp-highlight');
+                    });
+                    
+                    // 选择最终成员
+                    const selectedIndex = Math.floor(Math.random() * availableMembers.length);
+                    const selectedMember = availableMembers[selectedIndex];
+                    
+                    // 更新UI
+                    const resultElement = document.getElementById(`result${drawCount+1}`);
+                    resultElement.textContent = selectedMember;
+                    resultElement.style.animation = "pulse 0.5s";
+                    
+                    // 更新成员卡片（仅最终选中的变色）
+                    const selectedCard = document.getElementById(`card-${selectedMember.replace(' ', '-')}`);
+                    if (selectedCard) {
+                        selectedCard.classList.add('selected');
+                        selectedCard.querySelector('.member-status').textContent = "Selected";
+                    }
+                    
+                    // 从可用成员中移除
+                    availableMembers = availableMembers.filter(member => member !== selectedMember);
+                    
+                    // 更新计数器
+                    drawCount++;
+                    drawCounter.textContent = 3 - drawCount;
+                    
+                    // 重新启用按钮（如果还有抽取次数）
+                    if (drawCount < 3) {
+                        drawButton.disabled = false;
+                    } else {
+                        drawButton.textContent = "Draw Completed";
+                    }
+                    
+                    // 移除脉冲动画
+                    setTimeout(() => {
+                        resultElement.style.animation = "";
+                    }, 500);
+                }
+            }, 100);
+        }
+        
+        // Reset the draw
+        function resetDraw() {
+            availableMembers = [...teamMembers];
+            drawCount = 0;
+            drawCounter.textContent = "3";
+            drawButton.disabled = false;
+            drawButton.textContent = "Draw a Presenter";
+            
+            // 重置结果
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`result${i}`).textContent = "-";
+            }
+            
+            // 重置成员卡片
+            createMemberCards();
+        }
+        
+        // Initialize
+        createMemberCards();
+        drawButton.addEventListener('click', drawPresenter);
+        resetButton.addEventListener('click', resetDraw);
+        
+        // 添加脉冲动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
